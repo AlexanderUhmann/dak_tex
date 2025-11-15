@@ -1,0 +1,15 @@
+\babel@toc {russian}{}\relax 
+\contentsline {chapter}{Введение}{3}{Doc-Start}%
+\contentsline {chapter}{\numberline {1}Алгоритмы машинного обучения в кредитном скоринге}{5}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Предобработка данных}{5}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Метод основных компонент}{5}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Определение аномальности клиента}{5}{subsection.1.1.2}%
+\contentsline {section}{\numberline {1.2}Основные алгоритмы}{5}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Деревья решений}{5}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Случайный лес}{5}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Градиентный бустинг}{5}{subsection.1.2.3}%
+\contentsline {subsection}{\numberline {1.2.4}Нейронные сети}{5}{subsection.1.2.4}%
+\contentsline {chapter}{\numberline {2}Тестирование моделей машинного обучения на всех данных}{6}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Разработка веб-приложения}{7}{chapter.3}%
+\contentsline {chapter}{Список литературы}{8}{chapter*.1}%
+\contentsline {chapter}{Заключение}{8}{chapter*.1}%
