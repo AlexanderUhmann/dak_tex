@@ -235,8 +235,8 @@ backend=biber,
 style=gost-numeric,
 sorting=nyt,
 ]{biblatex}
-
-\addbibresource{ref.bib}         % ref.bib - файл с библиографией
+\renewcommand*{\subtitlepunct}{\space} % Убирает двоеточие перед названием
+\addbibresource{ref.bib}                             % ref.bib - файл с библиографией
 
 %-----------------гиперссылки
 \usepackage{url}
@@ -266,12 +266,12 @@ sorting=nyt,
 	%\bibliography{references}
 	\hyphenation{confusion}
 	
-	\include{intro}
-	\include{chapter1}
+	%\include{intro}
+	%\include{chapter1}
 	\include{chapter2}
-	\include{chapter3}
+	%\include{chapter3}
 	
-	\nocite{*}
+
 	\printbibliography
 %	\printbibliography[title={Статьи}, keyword=art, resetnumbers=false]
 %	\printbibliography[title={Интернет-ресурсы}, keyword=web, resetnumbers=false]
