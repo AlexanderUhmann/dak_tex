@@ -166,7 +166,7 @@ name = Рисунок}
 \newtheorem{notice}{Замечание}[section]
 \newtheorem{df}{Определение}%[section]
 \newtheorem{co}{Комментарий}%[chapter]
-
+\usepackage{mathtools}
 
 % Двоеточие заменили на дефис
 
@@ -232,10 +232,26 @@ name = Рисунок}
 
 \usepackage[
 backend=biber,
-style=gost-numeric,
+style=gost-footnote,
+bibstyle = gost-numeric,
 sorting=nyt,
 ]{biblatex}
 \renewcommand*{\subtitlepunct}{\space} % Убирает двоеточие перед названием
+
+% при каждом цитировании убираем addendum (Загл. с экрана)
+\AtEveryCitekey{\clearfield{addendum}}
+	
+% фамилия потом инициалы
+\DeclareNameAlias{default}{family-given}
+\DeclareNameAlias{author}{default}
+
+% убрать запятую между фамилией и инициалами
+\renewcommand*{\revsdnamepunct}{\space}
+
+% убирает пробел между инициалами
+\renewcommand*{\bibinitdelim}{} 
+
+
 \addbibresource{ref.bib}                             % ref.bib - файл с библиографией
 
 %-----------------гиперссылки
