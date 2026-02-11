@@ -157,10 +157,10 @@ textfont = normal,
 name = Рисунок}
 
 
-%---------------Рисунки, графики---------------
+%---------------Теоремы, определения---------------
 \usepackage{amsthm}
 
-\theoremstyle{break}
+\theoremstyle{plain}
 \newtheorem{theorem}{Теорема}
 \newtheorem{example}{Пример}[section]
 \newtheorem{notice}{Замечание}[section]
@@ -231,10 +231,11 @@ name = Рисунок}
 \makeatother
 
 \usepackage[
-backend=biber,
-style=gost-footnote,
+backend = biber,
+style = gost-footnote,
 bibstyle = gost-numeric,
-sorting=nyt,
+%sorting = nyt,  % нумерация в алфавитном порядке 
+sorting = none,  % нумерация по мере цитирования
 ]{biblatex}
 \renewcommand*{\subtitlepunct}{\space} % Убирает двоеточие перед названием
 
@@ -250,10 +251,11 @@ sorting=nyt,
 
 % убирает пробел между инициалами
 \renewcommand*{\bibinitdelim}{} 
+\DeclareUnicodeCharacter{0084}{\textendash}
 
 
-\addbibresource{ref.bib}                             % ref.bib - файл с библиографией
-
+%\addbibresource{ref_8_02_2026.bib} % ref.bib - файл с библиографией
+\addbibresource{ref.bib}
 %-----------------гиперссылки
 \usepackage{url}
 \usepackage[   
@@ -277,23 +279,18 @@ sorting=nyt,
 	\tableofcontents
 	\clearpage 
 	\setcounter{page}{3}  % Нумерация страниц начинается с 2-х
-	\pagestyle{plain} % нумерация вкл. внизу, посередине
+	\pagestyle{plain}     % нумерация вкл. внизу, посередине
 	
 	%\bibliography{references}
-	\hyphenation{confusion}
+	\hyphenation{confusion}%
 	
-	%\include{intro}
+	\include{intro}
 	%\include{chapter1}
-	\include{chapter2}
-	\include{chapter3}
-	
-
-	\printbibliography
-%	\printbibliography[title={Статьи}, keyword=art, resetnumbers=false]
-%	\printbibliography[title={Интернет-ресурсы}, keyword=web, resetnumbers=false]
-	
+    \include{chapter2_8_02_2026}
+	\include{chapter3_8_02_2026}
 	\include{appendix1}
-
+	\printbibliography
+    
 \end{document}
 	
 	
