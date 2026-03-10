@@ -22,70 +22,51 @@
 {г.~Астана, Казахстан}											% Город, страна
 {assemk2004@gmail.com}									% e-mail (если есть)
 
-В современных задачах кредитного скоринга необходимо выявлять сложные нелинейные зависимости в кредитных историях заемщиков. Классическая логистическая регрессия не всегда способна выявлять такие закономерности. В данной работе проводится исследование использования нейронной сети для прогнозирования дефолта заемщика на основе исторических данных платежной дисциплины. Данные взяты из платформы ODS.ai [1].
+В современных задачах кредитного скоринга необходимо выявлять сложные нелинейные зависимости в кредитных историях заемщиков. Классическая логистическая регрессия не всегда способна выявлять такие закономерности. В данной работе проводится исследование использования нейронной сети для прогнозирования дефолта заемщика на основе его исторических данных платежной дисциплины. Данные взяты из платформы ODS.ai [1].
   
 
-В качестве исходных данных используется матрица X\_pay, состоящая из 25 признаков истории платежей (enc\_paym0,\dots,enc\_paym24). Целевой переменной является флаг дефолта (1 -- дефолт, 0 -- его отсутствие). Для обучения и валидации исходный массив данных, состоящий из 3\,000\,000 клиентов, был разделен на тренировочную (75\%) и тестовую (25\%) выборки.
+В качестве исходных данных используется матрица признаков X\_pay, состоящая из 25 признаков истории платежей (enc\_paym0,\dots,enc\_paym15). Целевой переменной является флаг (метка) дефолта (1 -- дефолт, 0 -- его отсутствие). Для обучения и валидации исходный массив данных, состоящий из 3\,000\,000 клиентов, был разделен на тренировочную (75\%) и тестовую (25\%) выборки.
 В работе используется нейронная сеть со следующей структурой:
-\onepicture{neural_network}{Структура нейронной сети} \\
+\onepicture{neural\_network}{Структура нейронной сети} \\
 Код обучения нейронной сети на языке Python с использованием библиотеки keras [2]:
-%\begin{lstlisting}
-%set terminal epscairo font "Helvetica,16" \
-%enhanced color dashed
-%set output 'IvanovAA2.eps'
-%set xrange [0:16]
-%set yrange [0:20]
-%set grid
-%set key box lt -1 lw 1
-%plot "f.txt" with linespoints \
-%ps 1 pt 4 lw 1 lt rgb 'blue' title 'random', \
-%x with lines \
-%linetype 2 lw 2 lc rgb 'red' title 'linear'
-%\end{lstlisting}
+\begin{lstlisting}
+columns\_pay = ['enc\_paym\_0', 'enc\_paym\_1', 'enc\_paym\_2',
+'enc\_paym\_3', 'enc\_paym\_4', 'enc\_paym\_5', 
+'enc\_paym\_6', 'enc\_paym\_7', 'enc\_paym\_8', 
+'enc\_paym\_9', 'enc\_paym\_10', 'enc\_paym\_11', 
+'enc\_paym\_12', 'enc\_paym\_13', 'enc\_paym\_14', 
+'enc\_paym\_15', 'enc\_paym\_22', 'enc\_paym\_23', 'enc\_paym\_24']
+
+X\_pay = df.loc[:, columns\_pay].copy() 
+y = y\_
+features = X\_pay.shape[1]
+
+X\_train, X\_test, Y\_train, Y\_test = train\_test\_split( X\_pay, y\_, test\_size=0.25, random\_state=0)
+
+epochs = 200
+
+model = keras.Sequential()            
+model.add(keras.Input(shape=(features,)))  
+model.add(Dense(32, activation='relu'))   
+model.add(keras.layers.Dense(1, activation='sigmoid'))
+
+opt = keras.optimizers.Adam(learning\_rate=0.005)
+metrics = keras.metrics.BinaryAccuracy(name="accuracy", dtype=None, threshold=0.5)
+
+model.compile(optimizer=opt, loss='mse', metrics=metrics)
+fit\_history = model.fit(X\_train, Y\_train, 
+batch\_size=128,
+validation\_data=(X\_test, Y\_test),
+epochs=epochs)
+\end{lstlisting}
 \\
 Обученная модель продемонстрировала высокую предсказательную способность.
 Основные метрики качества модели представлены  на рис. 2:
-%\begin{center}
-%	\begin{longtable}{|c|c|c|c|c|c|c|}
-%		\caption{Метрики точности алгоритма Neural Network}
-%		\label{metrics_nn} \\
-%		\hline
-%		\hline
-%		\rowcolor[gray]{.9}
-%		\specialcell{Flag\\метка} &
-%		\specialcell{Precision\\точность} &
-%		\specialcell{Recall\\полнота} &
-%		\specialcell{f1--score\\f1--мера} &
-%		\specialcell{Accuracy\\точность}  &
-%		ROC--AUC &
-%		Количество    \\
-%		\hline
-%		\multicolumn{7}{|c|}{Тренировочная выборка}\\
-%		\hline
-%		0 & 1.00 & 0.97 & 0.99 &
-%		\multirow{2}{*}{0.98} &   
-%		\multirow{2}{*}{0.98} &  
-%		469239 \\                    
-%		\cline{1-4} \cline{7-7}
-%		1 & 0.95 & 1.00 & 0.97 &  
-%		&      & 280761 \\       
-%		\hline
-%		\multicolumn{7}{|c|}{Тестовая выборка} \\
-%		\hline
-%		0 & 1.00 & 0.97 & 0.98 &
-%		\multirow{2}{*}{0.98} &
-%		\multirow{2}{*}{0.98} &
-%		156325 \\
-%		\cline{1-4} \cline{7-7}
-%		1 & 0.95 & 1.00 & 0.97 & & & 93676 \\
-%		\hline
-%	\end{longtable}
-%\end{center}
-\newpage
+%\newpage
 \onepicture{table_thesis_2}{Метрики точности алгоритма Neural Network}
 Метрики $accuracy$ и $ROC-AUC$ демонстрируют одинаковую высокую точность, что также относит нейронные сети к наиболее предпочтительным алгоритмам для прогнозирования дефолта заемщиков.
 %\onepicture{ROC_AUC_nn_train_test}{Структура нейронной сети}
-На рис. 3 изображены матрицы ошибок нейронной сети. Из этих матриц видно, что дефолтные клиенты( флаг(метка) -- 1) распознаются хуже, чем недефолтные клиенты(флаг(метка) -- 0): 
+На рис. 3 изображены матрицы ошибок нейронной сети. Из этих матриц видно, что дефолтные клиенты(флаг (метка) -- 1) распознаются хуже, чем недефолтные клиенты(флаг(метка) -- 0): 
 
 
 
