@@ -5,10 +5,7 @@ dtree = DecisionTreeClassifier()
 dtree.fit(X_train, Y_train) 
 
 y_pred_train = dtree.predict(X_train)
-y_proba_train = dtree.predict_proba(X_train)
 y_pred_test = dtree.predict(X_test)
-y_proba_test = dtree.predict_proba(X_test)
 
-y_pred_test = dtree.predict(X_test)
 print(classification_report(Y_train, y_pred_train))
 print(classification_report(Y_test, y_pred_test))
