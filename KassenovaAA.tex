@@ -1,0 +1,89 @@
+\documentclass{msukz}	% Подключается файл настроек msukz.cls
+% Пожалуйста, не подключайте других пакетов
+% и не производите какую-либо настройку.
+% Они будут проигнорированы при компиляции сборника.
+% При необходимости свяжитесь с техническим секретарем.
+
+\begin{document}
+\info % информация о тезисе:
+{Касенова А.А.}										% Фамилия И.О. авторов
+{Прогнозирование дефолта заемщика банка с использованием нейронной сети}	% Название тезиса
+{Бакалавр, студент}											% Статусы (первый с заглавной буквы)
+{Казахстанский филиал МГУ имени М.В.Ломоносова}					% Организация
+{г.~Астана, Казахстан}											% Город, страна
+{assemk2004@gmail.com}									% e-mail (если есть)
+
+В современных задачах кредитного скоринга необходимо выявлять сложные нелинейные зависимости в кредитных историях заемщиков. В данной работе проводится исследование использования нейронной сети для прогнозирования дефолта заемщика на основе его исторических данных платежной дисциплины. Данные взяты из платформы ODS.ai [1].
+  
+В ходе предобработки данных были выполнены редукция признакового пространства и выявление аномальных клиентов. В качестве исходных данных используется матрица признаков X\_pay, состоящая из 19 признаков истории платежей (enc\_paym0, \dots, enc\_paym15, enc\_paym22, \dots, enc\_paym24). Целевой переменной является флаг (метка) дефолта (1 -- дефолт, 0 -- его отсутствие). Для обучения и валидации исходный массив данных, состоящий из 3\,000\,000 клиентов, был разделен на тренировочную (75\%) и тестовую (25\%) выборки. В работе используется нейронная сеть со следующей структурой:
+\onepicture{KassenovaAA1}{Структура нейронной сети} \\
+
+Код обучения нейронной сети на языке Python с использованием библиотеки keras [2]:
+\begin{lstlisting}
+import numpy as np
+import pandas as pd
+from tensorflow.keras.layers import Dense
+df = pd.read_csv('2_data_csv_all.csv'),
+y_ = pd.read_csv('train_target.csv')['flag'].values 
+columns_pay = ['enc_paym_0', 'enc_paym_1', 'enc_paym_2',
+               'enc_paym_3', 'enc_paym_4', 'enc_paym_5', 
+               'enc_paym_6', 'enc_paym_7', 'enc_paym_8', 
+               'enc_paym_9', 'enc_paym_10','enc_paym_11', 
+               'enc_paym_12','enc_paym_13','enc_paym_14', 
+               'enc_paym_15','enc_paym_22','enc_paym_23', 
+               'enc_paym_24']
+X_pay,features = df.loc[:, columns_pay],X_pay.shape[1] 
+X_train,X_test,Y_train,Y_test =
+train_test_split(X_pay, y_, 
+                 test_size = 0.25, 
+                 random_state = 0)
+epochs, model = 20, keras.Sequential()
+model.add(keras.Input(shape = (features,)))  
+model.add(Dense(32, activation = 'relu'))   
+model.add(keras.layers.Dense(1, activation = 'sigmoid'))
+opt = keras.optimizers.Adam(learning_rate = 0.005)
+metrics = keras.metrics.BinaryAccuracy(name = "accuracy", 
+                                       dtype = None, 
+                                       threshold = 0.5)
+model.compile(optimizer = opt,loss = 'mse',metrics = metrics)
+fit_history = model.fit(X_train, Y_train, batch_size = 128,
+                        validation_data = (X_test, Y_test), 
+                        epochs = epochs)
+\end{lstlisting}
+
+Обученная модель продемонстрировала высокую предсказательную способность. Основные метрики качества модели представлены в таблице 1:
+\begin{table}[h!]
+	\centering
+	\caption{Результаты нейронной сети}
+	\small
+	\renewcommand{\arraystretch}{1.2}
+	\setlength{\tabcolsep}{4pt}
+	
+	\begin{tabular}{|c|c|c|c|c|c|c|}
+		\hline
+		\shortstack{Flag} &
+		\shortstack{Precision} &
+		\shortstack{Recall} &
+		\shortstack{f1-score} &
+		\shortstack{Accuracy} &
+		ROC-AUC &
+		Количество \\ \hline
+		
+		\multicolumn{7}{|c|}{Тренировочная выборка} \\ \hline
+		0 & 1.00 & 0.97 & 0.98 & 0.98 & 0.97 & 1438473 \\ \hline
+		1 & 0.94 & 1.00 & 0.97 & 0.98 & 0.97 & 811527 \\ \hline
+		
+		\multicolumn{7}{|c|}{Тестовая выборка} \\ \hline
+		0 & 1.00 & 0.97 & 0.98 & 0.98 & 0.97 & 478610 \\ \hline
+		1 & 0.95 & 1.00 & 0.97 & 0.98 & 0.97 & 271390 \\ \hline
+	\end{tabular}
+\end{table}
+
+По результатам таблицы 1 видно, что нейронная сеть хорошо классифицирует заемщиков на тренировочной и тестовой выборках. Однако можно заметить, что дефолтные клиенты (флаг (метка) -- 1) хуже распознаются, чем недефолтные клиенты (флаг (метка) -- 0). Это означает, что нейронные сети являются одним из наиболее предпочтительных алгоритмов для прогнозирования дефолта заемщиков банка.
+
+\begin{references}
+\internet{ODS.ai}{Соревнование на данных кредитных историй}{https://ods.ai/competitions/dl-fintech-bki/data}
+\internet{Библиотека keras}{Keras}{https://keras.io/api/}
+\end{references}
+
+\end{document}
