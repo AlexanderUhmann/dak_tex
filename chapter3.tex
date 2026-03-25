@@ -1,6 +1,6 @@
 \chapter{Тестирование алгоритмов машинного и глубокого обучения на данных по кредитному скорингу}
 
-В предыдущей главе было выяснено, что алгоритмы градиентного бустинга и нейронных сетей не имеют эффектов переобучения и недообучения. В случае градиентного бустинга используются гиперпараметры по умолчанию, результаты метрик которых не ниже метрик других алгоритмов. Это означает, что не требуется поиск гиперпараметров для данного алгоритма и можно остановиться на гиперпараметрах по умолчанию. Идентичная ситуация возникает у нейронной сети с отличием в том, что у нее метрики точности немного хуже, чем у алгоритма градиентного бустинга. Поэтому в этой главе будут подобраны гиперпараметры для алгоритмов деревьев решений и случайного леса, поскольку они обладают эффектом переобучения. Основным инструментом для поиска оптимальных гиперпараметров используются инструменты $GridSearchCV$\footnote{\cite{GridSearchCV} (дата обращения: 25.11.2025).} и $RandomizedSearchCV$\footnote{\cite{RandomizedSearchCV} (дата обращения: 25.11.2025).}.
+В предыдущей главе было выяснено, что алгоритмы градиентного бустинга и нейронных сетей не имеют эффектов переобучения и недообучения. В случае градиентного бустинга используются гиперпараметры по умолчанию, результаты метрик которых не ниже метрик других алгоритмов. Это означает, что не требуется поиск гиперпараметров для данного алгоритма и можно остановиться на гиперпараметрах по умолчанию. Идентичная ситуация возникает у нейронной сети с отличием в том, что у нее метрики точности немного хуже, чем у алгоритма градиентного бустинга. В этой главе будут подобраны гиперпараметры для алгоритмов деревьев решений и случайного леса, поскольку они обладают эффектом переобучения. Основным инструментом для поиска оптимальных гиперпараметров используются инструменты $GridSearchCV$\footnote{\cite{GridSearchCV} (дата обращения: 25.11.2025).} и $RandomizedSearchCV$\footnote{\cite{RandomizedSearchCV} (дата обращения: 25.11.2025).}.
  Также в конце главы будут проанализированы прибыль и убыток банка на основании предсказаний четырех рассмотренных алгоритмов.
 
 \section{Подбор гиперпараметров для алгоритмов машинного обучения при оценке возврата кредита}
@@ -51,6 +51,7 @@
 %		{\rotatebox{-18}{Метод}} 
 		& GridSearchCV & RandomizedSearchCV \\ \hline
 		criterion           & entropy      &  log\_loss \\ \hline
+		splitter           & best      &  best \\ \hline
 		max\_depth          & 20           & 20 \\ \hline
 		max\_features       & \texttt{sqrt}&  \texttt{sqrt} \\ \hline
 		min\_samples\_leaf  & 20           & 15 \\ \hline
@@ -64,12 +65,12 @@
 	\end{minipage}
 \end{table}
 
-С помощью найденных гиперпараметров модель решающих деревья продемонстрировала следующие результаты (см. Таблицу \ref{new_dtc_gs}, Таблицу \ref{new_dtc_rsl}).
+С помощью найденных гиперпараметров алгоритм решающих деревьев продемонстрировал следующие результаты (см. Таблицу \ref{new_dtc_gs}, см. Таблицу \ref{new_dtc_rs}). Из таблицы \ref{new_dtc_gs} видно, что после подбора гиперпараметров методом $GridSearchCV$ алгоритм дерева решений показал высокое качество классификации на обучающей и тестовой выборках. Высокие значения $precision$ указывают на то, что модель редко ошибочно определяет метку класса клиентов. Также значения $recall$ демонстрируют, что модель хорошо выявляет недефолтных и дефолтных заемщиков. Значения $f1-score$ подтверждают сбалансированность между точностью и полнотой метрик. Метрика $accuracy$, равная 0.98, указывает на высокую долю верно классифицированных наблюдений, а $ROC-AUC$ на уровне 0.98--0.99 демонстрирует высокую способность модели разделять клиентов на два класса. Близость результатов метрик позволяет сделать вывод об отсутствии выраженного переобучения модели.
 
 \newpage
 \begin{center}
 	\begin{longtable}{|c|c|c|c|c|c|c|}
-		\caption{Метрики точности с использованием $GridSearchCV$}
+		\caption{Метрики точности алгоритма Decision Tree с использованием $GridSearchCV$}
 		\label{new_dtc_gs} \\
 		\hline
 		\multicolumn{7}{|c|}{Алгоритм -- Деревья решений}\\
@@ -100,7 +101,7 @@
 		\multirow{2}{*}{0.98} &
 		478610 \\
 		\cline{1-4} \cline{7-7}
-		1 & 0.94 & 1.00 & 0.97 & & & 271390 \\
+		1 & 0.95 & 1.00 & 0.97 & & & 271390 \\
 		\hline
 	\end{longtable}
 	\begin{minipage}{\textwidth}
@@ -110,11 +111,14 @@
 	\end{minipage}
 \end{center}
 
+Для более наглядной интерпретации полученных результатов представлена матрица ошибок (см. Рисунок \ref{fig:grid_dtr_matrix}). %Матрица позволяет увидеть, сколько клиентов каждого класса модель верно классифицировала, а в каких случаях допустила ошибки.
+На обучающей выборке модель допустила 78 ошибок при классификации недефолтных клиентов и 44960 ошибок при классификации дефолтных клиентов. На тестовой выборке соответствующие значения составили 34 и 14912 ошибок. Снижение неверных предсказаний на тестовой выборке объясняется меньшим объемом этой выборки. Можно заметить, что структура ошибок на обучающей и тестовой выборках остается близкой, указывая на сохранение качества классификации на тестовых данных и отсутствии выраженного переобучения.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{./ch3/graphics/grid_dtr_res.png}
+	\includegraphics[scale=0.4]{./ch3/graphics/matrix_dtr_train_test_3mln_grid.png}
 	\caption{Результаты подбора гиперпараметров с помощью $GridSearchCV$}
-	\label{fig:grid_dtr_res}
+	\label{fig:grid_dtr_matrix}
 	\vspace{10pt}
 	\begin{minipage}{\textwidth}
 		\fontsize{9}{11}\selectfont
@@ -123,11 +127,11 @@
 	\end{minipage}
 \end{figure}
 
-После подбора гиперпараметров с помощью метода $GridSearchCV$ можно заметить выравнивание всех метрик, что указывает на отсутствие эффекта переобучения, который наблюдался ранее (см. Таблицу \ref{new_dtc_gs}).
+Значения метрик, подобранные методом $RandomizedSearchCV$ (см. Таблицу \ref{new_dtc_gs}), остаются высокими и близкими к результатам, полученными методом $GridSearchCV$, поэтому основное внимание уделяется сравнению матриц ошибок. 
 
 \begin{center}
 	\begin{longtable}{|c|c|c|c|c|c|c|}
-		\caption{Метрики точности с использованием $RandomizedSearchCV$}
+		\caption{Метрики точности алгоритма Decision Tree  с использованием $RandomizedSearchCV$}
 		\label{new_dtc_rs} \\
 		\hline
 		\multicolumn{7}{|c|}{Алгоритм -- Деревья решений}\\
@@ -168,11 +172,13 @@
 	\end{minipage}
 \end{center}
 
+Из рисунка \ref{fig:random_dtr_matrix} видно, что в данном случае модель допускает примерно в 12 раз ошибок как на обучающей, так и на тестовой выборках. Сравнив результаты ошибочных классификаций, выбор делается в пользу гиперпараметров, подобранных методом $GridSearchCV$.
+
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.4]{./ch3/graphics/random_dtr_res.png}
+	\includegraphics[scale=0.4]{./ch3/graphics/matrix_dtr_train_test_3mln_random.png}
 	\caption{Результаты подбора гиперпараметров с помощью $RandomizedSearchCV$}
-	\label{fig:random_dtr_res}
+	\label{fig:random_dtr_matrix}
 	\vspace{10pt}
 	\begin{minipage}{\textwidth}
 		\fontsize{9}{11}\selectfont
@@ -181,39 +187,151 @@
 	\end{minipage}
 \end{figure}
 
-Аналогичная ситуация наблюдается и после подбора гиперпараметров с помощью $RandomizedSearchCV$, отсутствует эффект переобучения модели.
-Однако, сравнив матрицы ошибок, можно заметить, что количество ошибочных предсказаний на дефолтном классе немного ниже. Следовательно подбор гиперпараметров с помощью $RandomizedSearchCV$ лучше.
-
-
 \subsection{Случайный лес}
 
-Случайный лес является модификацией алгоритма деревья решений. По этой причине данные алгоритмы имеют схожие гиперпараметры кроме $n\_estimators$. 
+Случайный лес является модификацией алгоритма деревья решений. По этой причине данные алгоритмы имеют схожие гиперпараметры, кроме $n\_estimators$, где $n\_estimators$ -- это число деревьев в алгоритме случайного леса.
 
-$n\_estimators$ -- число деревьев в алгоритме случайного леса.
+\begin{table}[H]
+	\centering
+	\caption{Выбор гиперпараметров для алгоритма $Random\ Forest$ по двум методам}
+	\label{tab:rfс_params}
+	\begin{tabular}{|c|c|c|}
+	\hline
+	& GridSearchCV & RandomizedSearchCV \\ \hline
+	n\_estimators & 60      &  80 \\ \hline
+	criterion           & gini      &  log\_loss \\ \hline
+	max\_depth          & 20           & 20 \\ \hline
+	max\_features       & \texttt{sqrt}&  \texttt{log2} \\ \hline
+	min\_samples\_leaf  & 10           & 15 \\ \hline
+	min\_samples\_split & 30           &  20 \\ \hline
+	random\_state       & 42           &  42 \\ \hline
+\end{tabular}
+	\begin{minipage}{\textwidth}
+		\fontsize{9}{11}\selectfont
+		\justifying
+		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
+	\end{minipage}
+\end{table}
 
-%\begin{table}[H]
-%	\centering
-%	\caption{Выбор гиперпараметров для алгоритма $Random\ Forest$ по двум методам}
-%	\label{tab:rf_params}
-%	\begin{tabular}{|c|c|c|}
-%		\hline
-%		\diagbox[width=4.5cm,height=1.4cm,font=\small]
-%		{\rotatebox{-18}{Гиперпараметр}}
-%		{\rotatebox{-18}{Метод}} 
-%		& GridSearchCV & RandomizedSearchCV \\ \hline
-%		criterion           & entropy      &  gini \\ \hline
-%		max\_depth          & 20           & 50 \\ \hline
-%		min\_samples\_leaf  & 20           & 15 \\ \hline
-%		min\_samples\_split & 5           &  10 \\ \hline
-%		n\_estimators & 120 & 120 \\ \hline
-%		random\_state       & 42           &  42 \\ \hline
-%	\end{tabular}
-%	\begin{minipage}{\textwidth}
-%		\fontsize{9}{11}\selectfont
-%		\justifying
-%		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
-%	\end{minipage}
-%\end{table}
+Из таблицы \ref{new_rfc_gs} видно, что после подбора гиперпараметров с помощью $GridSearchCV$ алгоритм показал высокое качество классификации на обеих выборках. Высокие значения метрик $precision$, $recall$, $f1-score$ свидетельствуют о хорошем распозновании недефолтных и дефолтных клиентов. Значения $accuracy$ и $ROC-AUC$ также показывают хорошую разделяющую способность модели. Вместе с тем для класса 1 на обучающей выборке метрики немного выше, чем на тестовой, что указывает на небольшой эффект переобучения. Однако различия не являются существенными, поэтому модель сохраняет хорошую предсказательную способность.
+
+\begin{center}
+	\begin{longtable}{|c|c|c|c|c|c|c|}
+		\caption{Метрики точности с использованием $GridSearchCV$}
+		\label{new_rfc_gs} \\
+		\hline
+		\multicolumn{7}{|c|}{Алгоритм -- Случайный лес}\\
+		\hline
+		\rowcolor[gray]{.9}
+		\specialcell{Flag\\метка} &
+		\specialcell{Precision\\точность} &
+		\specialcell{Recall\\полнота} &
+		\specialcell{f1--score\\f1--мера} &
+		\specialcell{Accuracy\\точность}  &
+		ROC--AUC &
+		Количество    \\
+		\hline
+		\multicolumn{7}{|c|}{Тренировочная выборка}\\
+		\hline
+		0 & 1.00 & 0.99 & 0.99 &
+		\multirow{2}{*}{0.99} &   
+		\multirow{2}{*}{0.98} &  
+		1438473\\                    
+		\cline{1-4} \cline{7-7}
+		1 & 1.00 & 0.98 & 0.99 &  
+		&      & 811527 \\       
+		\hline
+		\multicolumn{7}{|c|}{Тестовая выборка} \\
+		\hline
+		0 & 1.00 & 0.97 & 0.98 &
+		\multirow{2}{*}{0.98} &
+		\multirow{2}{*}{0.98} &
+		478610 \\
+		\cline{1-4} \cline{7-7}
+		1 & 0.95 & 1.00 & 0.97 & & & 271390 \\
+		\hline
+	\end{longtable}
+	\begin{minipage}{\textwidth}
+		\fontsize{9}{11}\selectfont
+		\justifying
+		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
+	\end{minipage}
+\end{center}
+
+Матрица ошибок (см. Рисунок \ref{fig:rand_rfc_res}) подтверждает результаты таблицы \ref{new_rfc_gs}. Большинство наблюдений на обеих выборках верно классифицировано, а число ошибок остается примерно на прежнем уровне, что и у алгоритма $Decision Tree$. При этом относительная доля ошибок по обоим классам остается близкой, что указывает на хорошую устойчивость модели при классификации наблюдений.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.4]{./ch3/graphics/matrix_rfc_train_test_3mln_grid_.png}
+	\caption{Результаты подбора гиперпараметров с помощью $GridSearchCV$}
+	\label{fig:rand_rfc_res}
+	\vspace{10pt}
+	\begin{minipage}{\textwidth}
+		\fontsize{9}{11}\selectfont
+		\justifying
+		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
+	\end{minipage}
+\end{figure}
+
+Из таблицы \ref{rand_rfc_matrix} видно, что алгоритм с гиперпараметрами, подобранными методом $RandomizedSearchCV$, сохраняет высокое качество классификации на обеих выборках. Однако по отдельным метрикам для класса 1 результаты немного ниже по сравнению с $GridSearchCV$.
+
+\begin{center}
+	\begin{longtable}{|c|c|c|c|c|c|c|}
+		\caption{Метрики точности с использованием $RandomizedSearchCV$}
+		\label{rand_rfc_matrix} \\
+		\hline
+		\multicolumn{7}{|c|}{Алгоритм -- Случайный лес}\\
+		\hline
+		\rowcolor[gray]{.9}
+		\specialcell{Flag\\метка} &
+		\specialcell{Precision\\точность} &
+		\specialcell{Recall\\полнота} &
+		\specialcell{f1--score\\f1--мера} &
+		\specialcell{Accuracy\\точность}  &
+		ROC--AUC &
+		Количество    \\
+		\hline
+		\multicolumn{7}{|c|}{Тренировочная выборка}\\
+		\hline
+		0 & 1.00 & 0.97 & 0.98 &
+		\multirow{2}{*}{0.98} &   
+		\multirow{2}{*}{0.99} &  
+		1438473\\                    
+		\cline{1-4} \cline{7-7}
+		1 & 0.94 & 1.00 & 0.97 &  
+		&      & 811527 \\       
+		\hline
+		\multicolumn{7}{|c|}{Тестовая выборка} \\
+		\hline
+		0 & 1.00 & 0.97 & 0.98 &
+		\multirow{2}{*}{0.98} &
+		\multirow{2}{*}{0.98} &
+		478610 \\
+		\cline{1-4} \cline{7-7}
+		1 & 0.95 & 1.00 & 0.97 & & & 271390 \\
+		\hline
+	\end{longtable}
+	\begin{minipage}{\textwidth}
+		\fontsize{9}{11}\selectfont
+		\justifying
+		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
+	\end{minipage}
+\end{center}
+
+Матрица ошибок (см. Рисунок \ref{fig:random_rfc_matrix}) показывает, что модель с гиперпараметрами, подобранными методом $RandomizedSearchCV$, допускает больше ошибок по классу 0 по сравнению с вариантом  $GridSearchCV$, при этом число ошибок по классу 1 немного ниже. Тем не менее общее число ошибок выше, чем при $GridSearchCV$, поэтому в данном случае целесообразно выбрать гиперпараметры, найденные с помощью $GridSearchCV$.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.4]{./ch3/graphics/matrix_rfc_train_test_3mln_random_.png}
+	\caption{Результаты подбора гиперпараметров с помощью  $RandomizedSearchCV$}
+	\label{fig:random_rfc_matrix}
+	\vspace{10pt}
+	\begin{minipage}{\textwidth}
+		\fontsize{9}{11}\selectfont
+		\justifying
+		Источник: составлено автором на основе: Соревнование на данных кредитных историй [Электронный ресурс] / Open Data Science. -- URL: \url{https://ods.ai/competitions/dl-fintech-bki} (дата обращения: 25.11.2025).
+	\end{minipage}
+\end{figure}
 
 \subsection{Градиентный бустинг}
 \subsection{Нейронная сеть}
