@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 import pyarrow.parquet as pq
-
 path = "train_data"
 for i,file in enumerate(os.listdir(path)):
     file = 'train_data_' + str(i) + '.pq'
@@ -11,14 +10,12 @@ for i,file in enumerate(os.listdir(path)):
     file_csv = file.replace('.pq', '.csv')
     df_gr.to_csv(os.path.join('train_data_csv_all',file_csv))
 os.listdir(path)
-
 path = 'train_data_csv_all'  
 frames = []
 for file_csv in os.listdir(path):
     if file_csv.endswith('.csv'):
         df = pd.read_csv(os.path.join(path, file_csv))
         frames.append(df)
-
 result = pd.concat(frames)
 file_csv_all = '1_data_csv_all.csv' 
 result.to_csv(file_csv_all)

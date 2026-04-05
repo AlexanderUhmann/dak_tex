@@ -1,7 +1,6 @@
 df_y = pd.read_csv('train_target.csv')
 y  = df_y.flag.values[:1000000].copy()
 y_ = df_y.flag.values[:1000000].copy()
-
 counter_norm, counter_anom = 0, 0
 ind_norm, ind_anom = [], []
 for i,x_pay in enumerate(np.array(X_pay)):

@@ -1,8 +1,6 @@
 from sklearn.decomposition import PCA
-
 file_csv = 'data_csv_small.csv'
 df = pd.read_csv(file_csv)
-
 columns = ['pre_pterm', 'pre_fterm',
            'pre_loans_next_pay_summ','pre_loans_outstanding',
            'pre_loans_total_overdue', 'pre_loans_max_overdue_sum',
@@ -20,9 +18,7 @@ columns = ['pre_pterm', 'pre_fterm',
            'enc_paym_18', 'enc_paym_19', 'enc_paym_20',
            'enc_paym_21', 'enc_paym_22',
            'enc_paym_23', 'enc_paym_24']
-
 X = df.loc[:, columns].copy()
 pca = PCA()   
 pca.fit(X)  
-
 100*pca.explained_variance_ratio_.round(3)

@@ -9,7 +9,6 @@ for i in range(1, X_pay.shape[1]):
     ind_ano = ind_anom
     ano_c.append( np.corrcoef(np.array(X_pay).T[i-1][ind_ano], np.array(X_pay).T[i][ind_ano])[0,1])
     month.append(i)
-
 mth = 0
 n_all, n_nod, n_def, n_ano = X_pay.shape[0], len(ind_nod), len(ind_def), len(ind_ano) 
 R_all, r_nod, r_def, r_ano = all_c[mth], nod_c[mth], def_c[mth], ano_c[mth]
